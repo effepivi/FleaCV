@@ -121,7 +121,6 @@ Mat getFrame(Camera& aCamera)
 {
     // Retrieve an image
     Image rawImage;
-    const int k_numImages = 10;
 
     FlyCapture2::Error error_status = aCamera.RetrieveBuffer(&rawImage);
     if (error_status != PGRERROR_OK)
@@ -152,16 +151,20 @@ Mat getFrame(Camera& aCamera)
 }
 
 
-int main()
+int main(int argc, char** argv)
 {
     try
     {
         Camera camera;
         openFlea3Camera(camera, 0);
 
+        // Grab a new frame
+        Mat frame = getFrame(camera);
+        VideoWriter video_output("../output.avi", VideoWriter::fourcc('M','J','P','G'), 25, Size(frame.cols,frame.rows));
+
         namedWindow("Webcam", WINDOW_GUI_EXPANDED); // Create a window
 
-        while (waitKey(1) != 27) // Exit when pressing <ESC>
+        while (waitKey(25) != 27) // Exit when pressing <ESC>
         {
             // Grab a new frame
             Mat frame = getFrame(camera);
@@ -173,12 +176,16 @@ int main()
                 throw runtime_error("OpenCV cannot grab a new frame from the camera, the program will terminate");
             }
 
+            // Save the frame in the output file
+            video_output << frame;
+
             // Display the image
             imshow("Webcam", frame);
         }
 
-        // Release the camera and window
-        releaseFlea3Camera(camera);
+        // Release the video writer, the camera, and the window
+        video_output.release(); // We are now done with the video output, stop it
+        releaseFlea3Camera(camera); // Release the camera
         destroyAllWindows(); // Destroy all the created windows
     }
     catch (const exception& error)
