@@ -102,7 +102,7 @@ int main(int argc, char** argv)
             video_output << frame;
 
             // Display the image
-            imshow("Webcam", frame);
+            imshow("Flir Flea3 Camera", frame);
         }
 
         // Release the video writer, the camera, and the window
