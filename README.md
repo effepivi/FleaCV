@@ -10,14 +10,14 @@ This demo show you how to use the [Flea3](https://www.flir.co.uk/products/flea3-
 
 Requirements:
 
--  [OpenCV](https://opencv.org/): To use OpenCV.
--  [CMake](https://www.cmake.org/): To build the program.
--  [FlyCapture SDK](https://www.flir.co.uk/support-center/iis/machine-vision/downloads/spinnaker-sdk-flycapture-and-firmware-download/) by [Flir](https://www.flir.co.uk/): Use use the [Flea3](https://www.flir.co.uk/products/flea3-usb3/) camera.
+-   [OpenCV](https://opencv.org/): To use OpenCV.
+-   [CMake](https://www.cmake.org/): To build the program.
+-   [FlyCapture SDK](https://www.flir.co.uk/support-center/iis/machine-vision/downloads/spinnaker-sdk-flycapture-and-firmware-download/) by [Flir](https://www.flir.co.uk/): Use use the [Flea3](https://www.flir.co.uk/products/flea3-usb3/) camera.
 
 You can consult:
 
--  The Jupyter notebook: [README.ipynb](README.ipynb), or
--  This class I wrote to mimic [OpenCV](https://opencv.org/)'s [VideoCapture](https://docs.opencv.org/master/d8/dfe/classcv_1_1VideoCapture.html#a9ac7f4b1cdfe624663478568486e6712): [Flea3Capture.h](Flea3Capture.h)
+-   The Jupyter notebook: [README.ipynb](README.ipynb), or
+-   This class I wrote to mimic [OpenCV](https://opencv.org/)'s [VideoCapture](https://docs.opencv.org/master/d8/dfe/classcv_1_1VideoCapture.html#a9ac7f4b1cdfe624663478568486e6712): [Flea3Capture.h](Flea3Capture.h)
 
 In OpenCV, you'll use something like this to use the default camera:
 
