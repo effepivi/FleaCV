@@ -24,7 +24,6 @@ inline int estimateFPS(Flea3Capture& aCamera)
     int frame_counter = 0;
     int interval = 250;
     milliseconds start = duration_cast< milliseconds >(system_clock::now().time_since_epoch());
-    int current_FPS = 0;
 
     while (frame_counter < interval)
     {
