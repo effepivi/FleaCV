@@ -5,178 +5,44 @@
 #include <opencv2/opencv.hpp> // For OpenCV
 #include <FlyCapture2.h> // For the Flea3 camera
 
+#include "Flea3Capture.h"
+
 using namespace FlyCapture2;
 using namespace cv;
 using namespace std;
-
-//-----------------------------------
-PGRGuid getFlea3Id(int aCameraId = 0)
-//-----------------------------------
-{
-    PGRGuid guid;
-    BusManager bus_manager;
-    unsigned int number_of_cameras;
-
-    // Retrieve the number of cameras
-    FlyCapture2::Error error_status = bus_manager.GetNumOfCameras(&number_of_cameras);
-    if (error_status != PGRERROR_OK)
-    {
-        throw runtime_error(error_status.GetDescription());
-    }
-
-    // The camera exists
-    if (number_of_cameras > aCameraId)
-    {
-        error_status = bus_manager.GetCameraFromIndex(aCameraId, &guid);
-        if (error_status != PGRERROR_OK)
-        {
-            throw runtime_error(error_status.GetDescription());
-        }
-    }
-    // The camera does not exist
-    else
-    {
-        stringstream error_message;
-        error_message << "FATAL ERROR" << endl;
-        error_message << "Number of cameras detected: " << number_of_cameras << endl;
-        error_message << "Camera ID " << aCameraId << " does not exist" << endl;
-        error_message << "The program will terminate.";
-        throw runtime_error(error_message.str());
-    }
-
-    return guid;
-}
-
-//------------------------------------------------------
-void openFlea3Camera(Camera& aCamera, int aCameraId = 0)
-//------------------------------------------------------
-{
-    // Get the ID
-    PGRGuid guid = getFlea3Id(aCameraId);
-
-    // Connect to a camera
-    FlyCapture2::Error error_status = aCamera.Connect(&guid);
-    if (error_status != PGRERROR_OK)
-    {
-        throw runtime_error(error_status.GetDescription());
-    }
-
-    // Get the camera configuration
-    FC2Config config;
-    error_status = aCamera.GetConfiguration(&config);
-    if (error_status != PGRERROR_OK)
-    {
-        throw runtime_error(error_status.GetDescription());
-    }
-
-    // Set the number of driver buffers used to 10.
-    config.numBuffers = 10;
-
-    // Set the camera configuration
-    error_status = aCamera.SetConfiguration(&config);
-    if (error_status != PGRERROR_OK)
-    {
-        throw runtime_error(error_status.GetDescription());
-    }
-
-    // Start capturing images
-    error_status = aCamera.StartCapture();
-    if (error_status != PGRERROR_OK)
-    {
-        throw runtime_error(error_status.GetDescription());
-    }
-
-    // Read the first frame and throw it away
-    // (the data is rubbish)
-    Image rawImage;
-    error_status = aCamera.RetrieveBuffer(&rawImage);
-    if (error_status != PGRERROR_OK)
-    {
-        throw runtime_error(error_status.GetDescription());
-    }
-}
-
-//--------------------------------------
-void releaseFlea3Camera(Camera& aCamera)
-//--------------------------------------
-{
-    // Stop capturing images
-    FlyCapture2::Error error_status = aCamera.StopCapture();
-    if (error_status != PGRERROR_OK)
-    {
-        throw runtime_error(error_status.GetDescription());
-    }
-
-    // Disconnect the camera
-    error_status = aCamera.Disconnect();
-    if (error_status != PGRERROR_OK)
-    {
-        throw runtime_error(error_status.GetDescription());
-    }
-}
-
-//---------------------------
-Mat getFrame(Camera& aCamera)
-//---------------------------
-{
-    // Retrieve an image
-    Image rawImage;
-
-    FlyCapture2::Error error_status = aCamera.RetrieveBuffer(&rawImage);
-    if (error_status != PGRERROR_OK)
-    {
-        throw runtime_error(error_status.GetDescription());
-    }
-
-    // Convert the raw image
-    Image convertedImage;
-    error_status = rawImage.Convert(PIXEL_FORMAT_MONO8, &convertedImage);
-    if (error_status != PGRERROR_OK)
-    {
-        throw runtime_error(error_status.GetDescription());
-    }
-
-    // Convert to OpenCV
-    Mat opencv_image(convertedImage.GetRows(), convertedImage.GetCols(), CV_8UC1);
-    for (int row = 0; row < convertedImage.GetRows(); ++row)
-    {
-        for (int col = 0; col < convertedImage.GetCols(); ++col)
-        {
-            opencv_image.at<unsigned char>(Point(col, row)) = *convertedImage(row, col);
-
-        }
-    }
-
-    return opencv_image;
-}
 
 
 int main(int argc, char** argv)
 {
     try
     {
-        Camera camera;
-        openFlea3Camera(camera, 0);
+        Flea3Capture camera(0);
 
         // Grab a new frame
-        Mat frame = getFrame(camera);
-        VideoWriter video_output("../output.avi", VideoWriter::fourcc('M','J','P','G'), 25, Size(frame.cols,frame.rows));
+        Mat frame;
+        camera >> frame;
+        cout << frame.cols << "x" << frame.rows << endl;
+
+        int FPS = 50;
+        VideoWriter video_output("../output.mp4", VideoWriter::fourcc('H','2','6','4'), FPS, Size(frame.cols,frame.rows));
 
         namedWindow("Webcam", WINDOW_GUI_EXPANDED); // Create a window
 
-        while (waitKey(25) != 27) // Exit when pressing <ESC>
+        while (waitKey(int(1000.0 / FPS)) != 27) // Exit when pressing <ESC>
         {
             // Grab a new frame
-            Mat frame = getFrame(camera);
+            Mat frame;
+            camera >> frame;
 
             // Make sure everything went well
             if (frame.empty())
             {
-                releaseFlea3Camera(camera);
+                camera.release(); // Release the camera
                 throw runtime_error("OpenCV cannot grab a new frame from the camera, the program will terminate");
             }
 
             // Save the frame in the output file
+            cvtColor(frame, frame, COLOR_GRAY2BGR);
             video_output << frame;
 
             // Display the image
@@ -185,7 +51,7 @@ int main(int argc, char** argv)
 
         // Release the video writer, the camera, and the window
         video_output.release(); // We are now done with the video output, stop it
-        releaseFlea3Camera(camera); // Release the camera
+        camera.release(); // Release the camera
         destroyAllWindows(); // Destroy all the created windows
     }
     catch (const exception& error)
