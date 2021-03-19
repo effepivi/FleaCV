@@ -81,7 +81,7 @@ int main(int argc, char** argv)
 
         VideoWriter video_output(argv[1], VideoWriter::fourcc('M','J','P','G'), FPS, Size(frame.cols,frame.rows));
 
-        namedWindow("Webcam", WINDOW_GUI_EXPANDED); // Create a window
+        namedWindow("Flir Flea3 Camera", WINDOW_GUI_EXPANDED); // Create a window
 
 
         while (waitKey(int(1000. / FPS)) != 27) // Exit when pressing <ESC>
