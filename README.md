@@ -1,5 +1,7 @@
 # FleaCV -- Using the [Flea3](https://www.flir.co.uk/products/flea3-usb3/) camera in [OpenCV](https://opencv.org/)
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/833794ae0599417c9817e725948454c0)](https://app.codacy.com/gh/effepivi/FleaCV?utm_source=github.com&utm_medium=referral&utm_content=effepivi/FleaCV&utm_campaign=Badge_Grade_Settings)
+
 This demo show you how to use the [Flea3](https://www.flir.co.uk/products/flea3-usb3/) camera from Point Grey (now distributed by [Flir](https://www.flir.co.uk/)). I tested the code in GNU/Linux. There is no reason why it should not work with MS Windows. The code below
 
 1.  Opens the camera,
